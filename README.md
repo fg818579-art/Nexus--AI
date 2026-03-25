@@ -1,0 +1,2 @@
+# Nexus--AI
+Trading course
