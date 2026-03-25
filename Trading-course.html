@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeAcademy — From Zero to Trader</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #18181f;
+  --border: #2a2a3a;
+  --gold: #f5c518;
+  --gold2: #ff9500;
+  --green: #00e676;
+  --red: #ff4444;
+  --blue: #4fc3f7;
+  --purple: #b388ff;
+  --text: #f0f0f8;
+  --muted: #6b6b8a;
+  --card-glow: 0 0 30px rgba(245,197,24,0.07);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Noise texture overlay */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:0.4;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:280px;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  z-index:100;overflow-y:auto;
+}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);}
+
+.sidebar-logo{
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--border);
+}
+.logo-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;
+  letter-spacing:3px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.logo-sub{
+  font-size:10px;color:var(--muted);
+  letter-spacing:2px;font-family:'JetBrains Mono',monospace;
+  margin-top:2px;
+}
+
+.progress-wrap{
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+}
+.progress-label{
+  display:flex;justify-content:space-between;
+  font-size:11px;color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  margin-bottom:8px;
+}
+.progress-bar{
+  height:4px;background:var(--border);border-radius:2px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  border-radius:2px;
+  transition:width 0.5s ease;
+  width:0%;
+}
+.xp-badge{
+  margin-top:8px;
+  font-size:11px;
+  color:var(--gold);
+  font-family:'JetBrains Mono',monospace;
+}
+
+.nav-section{
+  padding:12px 20px 4px;
+  font-size:9px;letter-spacing:2px;
+  color:var(--muted);font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase;
+}
+
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px;cursor:pointer;
+  transition:all 0.2s;border-left:2px solid transparent;
+  position:relative;
+}
+.nav-item:hover{background:rgba(245,197,24,0.04);border-left-color:rgba(245,197,24,0.3);}
+.nav-item.active{background:rgba(245,197,24,0.08);border-left-color:var(--gold);}
+.nav-item.completed .nav-check{color:var(--green);}
+.nav-icon{font-size:16px;width:24px;text-align:center;flex-shrink:0;}
+.nav-info{flex:1;}
+.nav-title{font-size:12px;font-weight:600;color:var(--text);}
+.nav-item.active .nav-title{color:var(--gold);}
+.nav-meta{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.nav-check{font-size:12px;color:var(--border);}
+.nav-lock{font-size:11px;color:var(--muted);}
+
+.sidebar-footer{
+  margin-top:auto;padding:16px 20px;
+  border-top:1px solid var(--border);
+  font-size:11px;color:var(--muted);
+  line-height:1.6;
+}
+
+/* ── MAIN ── */
+.main{
+  margin-left:280px;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+}
+
+/* Top bar */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,10,15,0.9);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:14px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.breadcrumb{
+  font-size:12px;color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+}
+.breadcrumb span{color:var(--gold);}
+.topbar-actions{display:flex;gap:10px;align-items:center;}
+.btn{
+  padding:8px 18px;border-radius:8px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  border:none;transition:all 0.2s;
+  font-family:'DM Sans',sans-serif;
+}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#000;
+}
+.btn-gold:hover{opacity:0.9;transform:translateY(-1px);}
+.btn-outline{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--muted);
+}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+
+/* Content */
+.content{
+  flex:1;padding:40px;
+  max-width:900px;
+}
+
+/* Lesson panel */
+.lesson-panel{display:none;}
+.lesson-panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* Hero banner */
+.lesson-hero{
+  border-radius:16px;overflow:hidden;
+  margin-bottom:32px;
+  position:relative;
+  padding:36px;
+  min-height:160px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  z-index:0;
+}
+.hero-content{position:relative;z-index:1;}
+.lesson-number{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:2px;
+  margin-bottom:8px;opacity:0.8;
+}
+.lesson-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:42px;letter-spacing:2px;
+  line-height:1;margin-bottom:8px;
+}
+.lesson-desc{font-size:14px;opacity:0.8;max-width:500px;line-height:1.6;}
+.lesson-tags{
+  display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;
+}
+.tag{
+  padding:4px 12px;border-radius:20px;
+  font-size:11px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* Section headings */
+.section-heading{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;letter-spacing:2px;
+  color:var(--gold);margin:32px 0 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.section-heading::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,var(--border),transparent);
+}
+
+/* Info cards */
+.card-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:14px;margin-bottom:24px;
+}
+.card{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;padding:18px;
+  transition:all 0.2s;
+  box-shadow:var(--card-glow);
+}
+.card:hover{border-color:rgba(245,197,24,0.3);transform:translateY(-2px);}
+.card-icon{font-size:28px;margin-bottom:10px;}
+.card-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.card-body{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* Concept blocks */
+.concept{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px 24px;
+  margin-bottom:16px;
+  border-left:3px solid var(--gold);
+}
+.concept-title{
+  font-size:14px;font-weight:700;
+  margin-bottom:8px;color:var(--gold);
+  display:flex;align-items:center;gap:8px;
+}
+.concept-body{font-size:13px;color:var(--text);line-height:1.8;}
+.concept-body strong{color:var(--gold);}
+.concept.green{border-left-color:var(--green);}
+.concept.green .concept-title{color:var(--green);}
+.concept.red{border-left-color:var(--red);}
+.concept.red .concept-title{color:var(--red);}
+.concept.blue{border-left-color:var(--blue);}
+.concept.blue .concept-title{color:var(--blue);}
+.concept.purple{border-left-color:var(--purple);}
+.concept.purple .concept-title{color:var(--purple);}
+
+/* Video embed */
+.video-section{margin:28px 0;}
+.video-label{
+  font-size:11px;letter-spacing:2px;
+  color:var(--muted);font-family:'JetBrains Mono',monospace;
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.video-label::before{content:'▶';color:var(--red);}
+.video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.video-card{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+  transition:all 0.2s;
+}
+.video-card:hover{border-color:rgba(255,68,68,0.4);transform:translateY(-2px);}
+.video-thumb{
+  position:relative;width:100%;padding-bottom:56.25%;
+  background:#000;overflow:hidden;
+}
+.video-thumb iframe{
+  position:absolute;inset:0;width:100%;height:100%;
+  border:none;
+}
+.video-info{padding:12px;}
+.video-title{font-size:12px;font-weight:600;margin-bottom:4px;line-height:1.4;}
+.video-channel{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+/* Formula box */
+.formula{
+  background:rgba(0,0,0,0.4);
+  border:1px solid var(--border);
+  border-radius:8px;padding:16px 20px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;color:var(--green);
+  margin:16px 0;line-height:1.8;
+}
+
+/* Warning / tip boxes */
+.callout{
+  border-radius:10px;padding:16px 20px;
+  margin:16px 0;font-size:13px;line-height:1.7;
+}
+.callout.warn{background:rgba(245,197,24,0.08);border:1px solid rgba(245,197,24,0.2);}
+.callout.danger{background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);}
+.callout.success{background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);}
+.callout.info{background:rgba(79,195,247,0.08);border:1px solid rgba(79,195,247,0.2);}
+.callout-title{
+  font-weight:700;font-size:12px;
+  letter-spacing:1px;margin-bottom:6px;
+  font-family:'JetBrains Mono',monospace;
+}
+.callout.warn .callout-title{color:var(--gold);}
+.callout.danger .callout-title{color:var(--red);}
+.callout.success .callout-title{color:var(--green);}
+.callout.info .callout-title{color:var(--blue);}
+
+/* Table */
+.styled-table{
+  width:100%;border-collapse:collapse;
+  margin:16px 0;font-size:12px;
+}
+.styled-table th{
+  background:var(--surface2);
+  padding:10px 14px;text-align:left;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:1px;
+  color:var(--gold);border-bottom:2px solid var(--border);
+}
+.styled-table td{
+  padding:10px 14px;
+  border-bottom:1px solid rgba(42,42,58,0.5);
+  color:var(--text);line-height:1.5;
+}
+.styled-table tr:hover td{background:rgba(245,197,24,0.03);}
+.styled-table .green{color:var(--green);}
+.styled-table .red{color:var(--red);}
+
+/* Quiz */
+.quiz{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;padding:24px;
+  margin-top:32px;
+}
+.quiz-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:2px;
+  color:var(--gold);margin-bottom:20px;
+}
+.quiz-q{font-size:14px;font-weight:600;margin-bottom:12px;}
+.quiz-options{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{
+  padding:12px 16px;border-radius:8px;
+  background:rgba(0,0,0,0.3);
+  border:1px solid var(--border);
+  cursor:pointer;font-size:13px;
+  transition:all 0.2s;
+}
+.quiz-opt:hover{border-color:var(--gold);color:var(--gold);}
+.quiz-opt.correct{background:rgba(0,230,118,0.1);border-color:var(--green);color:var(--green);}
+.quiz-opt.wrong{background:rgba(255,68,68,0.1);border-color:var(--red);color:var(--red);}
+.quiz-feedback{
+  margin-top:12px;padding:12px 16px;
+  border-radius:8px;font-size:13px;
+  display:none;line-height:1.6;
+}
+
+/* Complete button */
+.complete-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:16px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#000;font-weight:700;font-size:15px;
+  border:none;border-radius:12px;cursor:pointer;
+  margin-top:32px;transition:all 0.2s;
+  font-family:'DM Sans',sans-serif;
+  letter-spacing:0.5px;
+}
+.complete-btn:hover{opacity:0.9;transform:translateY(-2px);box-shadow:0 8px 30px rgba(245,197,24,0.3);}
+
+/* Home screen */
+#home-screen{
+  padding:40px;max-width:900px;
+}
+.home-hero{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:40px;
+  margin-bottom:32px;
+  position:relative;overflow:hidden;
+}
+.home-hero::before{
+  content:'📈';
+  position:absolute;right:40px;top:50%;
+  transform:translateY(-50%);
+  font-size:120px;opacity:0.05;
+}
+.home-hero h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:52px;letter-spacing:3px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;margin-bottom:12px;
+}
+.home-hero p{font-size:15px;color:var(--muted);line-height:1.7;max-width:500px;margin-bottom:24px;}
+.home-stats{
+  display:flex;gap:32px;margin-bottom:24px;
+}
+.stat{font-family:'JetBrains Mono',monospace;}
+.stat-num{font-size:28px;font-weight:700;color:var(--gold);}
+.stat-label{font-size:11px;color:var(--muted);letter-spacing:1px;}
+
+.module-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;margin-bottom:32px;
+}
+.module-card{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:14px;padding:22px;
+  cursor:pointer;transition:all 0.25s;
+  position:relative;overflow:hidden;
+}
+.module-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:3px;
+}
+.module-card.m1::before{background:linear-gradient(90deg,#f5c518,#ff9500);}
+.module-card.m2::before{background:linear-gradient(90deg,#00e676,#00b0ff);}
+.module-card.m3::before{background:linear-gradient(90deg,#ff4444,#ff9500);}
+.module-card.m4::before{background:linear-gradient(90deg,#b388ff,#4fc3f7);}
+.module-card.m5::before{background:linear-gradient(90deg,#4fc3f7,#00e676);}
+.module-card.m6::before{background:linear-gradient(90deg,#f5c518,#b388ff);}
+.module-card:hover{transform:translateY(-4px);border-color:rgba(245,197,24,0.3);box-shadow:0 12px 40px rgba(0,0,0,0.3);}
+.module-emoji{font-size:32px;margin-bottom:12px;}
+.module-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:6px;}
+.module-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+.module-lessons{
+  font-size:11px;font-family:'JetBrains Mono',monospace;
+  color:var(--gold);
+}
+.module-progress{
+  margin-top:10px;height:3px;
+  background:var(--border);border-radius:2px;overflow:hidden;
+}
+.module-progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  border-radius:2px;
+}
+
+/* Steps list */
+.steps{display:flex;flex-direction:column;gap:12px;margin:16px 0;}
+.step{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:14px 18px;
+  background:var(--surface2);
+  border:1px solid var(--border);border-radius:10px;
+}
+.step-num{
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#000;font-weight:700;font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-family:'JetBrains Mono',monospace;
+}
+.step-content{}
+.step-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .main{margin-left:0;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-title">TRADE ACADEMY</div>
+    <div class="logo-sub">ZERO → PROFESSIONAL</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>YOUR PROGRESS</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="xp-badge">⚡ <span id="xp-count">0</span> XP earned</div>
+  </div>
+
+  <div onclick="showHome()" class="nav-item" id="nav-home" style="margin-top:8px">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-info">
+      <div class="nav-title">Course Home</div>
+      <div class="nav-meta">Overview & modules</div>
+    </div>
+  </div>
+
+  <div class="nav-section">MODULE 1 — FOUNDATIONS</div>
+  <div class="nav-item" onclick="showLesson('l1')" id="nav-l1">
+    <div class="nav-icon">📖</div>
+    <div class="nav-info"><div class="nav-title">What is Trading?</div><div class="nav-meta">10 min · Beginner</div></div>
+    <div class="nav-check" id="check-l1">○</div>
+  </div>
+  <div class="nav-item" onclick="showLesson('l2')" id="nav-l2">
+    <div class="nav-icon">🏦</div>
+    <div class="nav-info"><div class="nav-title">Types of Markets</div><div class="nav-meta">12 min · Beginner</div></div>
+    <div class="nav-check" id="check-l2">○</div>
+  </div>
+  <div class="nav-item" onclick="showLesson('l3')" id="nav-l3">
+    <div class="nav-icon">🕯️</div>
+    <div class="nav-info"><div class="nav-title">Reading Candlesticks</div><div class="nav-meta">15 min · Beginner</div></div>
+    <div class="nav-check" id="check-l3">○</div>
+  </div>
+
+  <div class="nav-section">MODULE 2 — TECHNICAL ANALYSIS</div>
+  <div class="nav-item" onclick="showLesson('l4')" id="nav-l4">
+    <div class="nav-icon">📊</div>
+    <div class="nav-info"><div class="nav-title">Support & Resistance</div><div class="nav-meta">15 min · Intermediate</div></div>
+    <div class="nav-check" id="check-l4">○</div>
+  </div>
+  <div class="nav-item" onclick="showLesson('l5')" id="nav-l5">
+    <div class="nav-icon">📈</div>
+    <div class="nav-info"><div class="nav-title">Indicators: RSI & MACD</div><div class="nav-meta">18 min · Intermediate</div></div>
+    <div class="nav-check" id="check-l5">○</div>
+  </div>
+  <div class="nav-item" onclick="showLesson('l6')" id="nav-l6">
+    <div class="nav-icon">🔷</div>
+    <div class="nav-info"><div class="nav-title">Chart Patterns</div><div class="nav-meta">20 min · Intermediate</div></div>
+    <div class="nav-check" id="check-l6">○</div>
+  </div>
+
+  <div class="nav-section">MODULE 3 — RISK MANAGEMENT</div>
+  <div class="nav-item" onclick="showLesson('l7')" id="nav-l7">
+    <div class="nav-icon">🛡️</div>
+    <div class="nav-info"><div class="nav-title">Stop Loss & Take Profit</div><div class="nav-meta">15 min · Intermediate</div></div>
+    <div class="nav-check" id="check-l7">○</div>
+  </div>
+  <div class="nav-item" onclick="showLesson('l8')" id="nav-l8">
+    <div class="nav-icon">💰</div>
+    <div class="nav-info"><div class="nav-title">Position Sizing</div><div class="nav-meta">12 min · Intermediate</div></div>
+    <div class="nav-check" id="check-l8">○</div>
+  </div>
+
+  <div class="nav-section">MODULE 4 — STRATEGY</div>
+  <div class="nav-item" onclick="showLesson('l9')" id="nav-l9">
+    <div class="nav-icon">🧠</div>
+    <div class="nav-info"><div class="nav-title">Building Your Strategy</div><div class="nav-meta">20 min · Advanced</div></div>
+    <div class="nav-check" id="check-l9">○</div>
+  </div>
+  <div class="nav-item" onclick="showLesson('l10')" id="nav-l10">
+    <div class="nav-icon">😤</div>
+    <div class="nav-info"><div class="nav-title">Trading Psychology</div><div class="nav-meta">15 min · Advanced</div></div>
+    <div class="nav-check" id="check-l10">○</div>
+  </div>
+
+  <div class="nav-section">MODULE 5 — AI TRADING</div>
+  <div class="nav-item" onclick="showLesson('l11')" id="nav-l11">
+    <div class="nav-icon">🤖</div>
+    <div class="nav-info"><div class="nav-title">Using AI for Signals</div><div class="nav-meta">15 min · Advanced</div></div>
+    <div class="nav-check" id="check-l11">○</div>
+  </div>
+  <div class="nav-item" onclick="showLesson('l12')" id="nav-l12">
+    <div class="nav-icon">🗺️</div>
+    <div class="nav-info"><div class="nav-title">Your Trading Roadmap</div><div class="nav-meta">10 min · All levels</div></div>
+    <div class="nav-check" id="check-l12">○</div>
+  </div>
+
+  <div class="sidebar-footer">
+    ⚠️ This course is for educational purposes only. Trading involves risk. Never invest money you cannot afford to lose.
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb" id="breadcrumb">📚 <span>Course Home</span></div>
+    <div class="topbar-actions">
+      <button class="btn btn-outline" onclick="showHome()">🏠 Home</button>
+    </div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div id="home-screen">
+    <div class="home-hero">
+      <h1>FROM ZERO<br>TO TRADER</h1>
+      <p>A complete, practical trading education covering everything from the basics of candlesticks to building your own AI-powered strategy. Built specifically for you.</p>
+      <div class="home-stats">
+        <div class="stat"><div class="stat-num">12</div><div class="stat-label">LESSONS</div></div>
+        <div class="stat"><div class="stat-num">5</div><div class="stat-label">MODULES</div></div>
+        <div class="stat"><div class="stat-num">3+</div><div class="stat-label">HOURS</div></div>
+        <div class="stat"><div class="stat-num">FREE</div><div class="stat-label">FOREVER</div></div>
+      </div>
+      <button class="btn btn-gold" onclick="showLesson('l1')" style="font-size:14px;padding:12px 28px;">🚀 Start Learning →</button>
+    </div>
+
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--gold);margin-bottom:20px;">📚 ALL MODULES</div>
+
+    <div class="module-grid">
+      <div class="module-card m1" onclick="showLesson('l1')">
+        <div class="module-emoji">🏗️</div>
+        <div class="module-name">FOUNDATIONS</div>
+        <div class="module-desc">What is trading, types of markets, and how to read candlestick charts like a pro.</div>
+        <div class="module-lessons">3 Lessons · ~37 minutes</div>
+        <div class="module-progress"><div class="module-progress-fill" id="mp1" style="width:0%"></div></div>
+      </div>
+      <div class="module-card m2" onclick="showLesson('l4')">
+        <div class="module-emoji">📊</div>
+        <div class="module-name">TECHNICAL ANALYSIS</div>
+        <div class="module-desc">Support & resistance, RSI, MACD, Bollinger Bands, and chart patterns explained.</div>
+        <div class="module-lessons">3 Lessons · ~53 minutes</div>
+        <div class="module-progress"><div class="module-progress-fill" id="mp2" style="width:0%"></div></div>
+      </div>
+      <div class="module-card m3" onclick="showLesson('l7')">
+        <div class="module-emoji">🛡️</div>
+        <div class="module-name">RISK MANAGEMENT</div>
+        <div class="module-desc">The most important module. Stop loss, take profit, position sizing — protect your capital.</div>
+        <div class="module-lessons">2 Lessons · ~27 minutes</div>
+        <div class="module-progress"><div class="module-progress-fill" id="mp3" style="width:0%"></div></div>
+      </div>
+      <div class="module-card m4" onclick="showLesson('l9')">
+        <div class="module-emoji">⚔️</div>
+        <div class="module-name">STRATEGY & PSYCHOLOGY</div>
+        <div class="module-desc">Build your own trading strategy and master the mental game that separates winners from losers.</div>
+        <div class="module-lessons">2 Lessons · ~35 minutes</div>
+        <div class="module-progress"><div class="module-progress-fill" id="mp4" style="width:0%"></div></div>
+      </div>
+      <div class="module-card m5" onclick="showLesson('l11')">
+        <div class="module-emoji">🤖</div>
+        <div class="module-name">AI-POWERED TRADING</div>
+        <div class="module-desc">How to use AI tools, NEXUS AI, and combine news + charts for higher accuracy signals.</div>
+        <div class="module-lessons">2 Lessons · ~25 minutes</div>
+        <div class="module-progress"><div class="module-progress-fill" id="mp5" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-title">⚠️ IMPORTANT BEFORE YOU START</div>
+      Trading is a skill that takes time to develop. This course will give you the knowledge — but practice, patience, and discipline are what will make you profitable. Always paper trade before using real money.
+    </div>
+  </div>
+
+  <!-- LESSONS CONTAINER -->
+  <div class="content" id="lessons-container" style="display:none">
+
+    <!-- LESSON 1: What is Trading -->
+    <div class="lesson-panel" id="lesson-l1">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#1a1400,#2a1f00);">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--gold)">MODULE 1 · LESSON 1</div>
+          <div class="lesson-title" style="color:var(--gold)">WHAT IS TRADING?</div>
+          <div class="lesson-desc">Understand what trading actually is, who participates, and how money is made and lost.</div>
+          <div class="lesson-tags">
+            <div class="tag" style="background:rgba(245,197,24,0.15);color:var(--gold)">BEGINNER</div>
+            <div class="tag" style="background:rgba(255,255,255,0.05);color:var(--muted)">10 MIN READ</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading">🎯 What is Trading?</div>
+      <div class="concept">
+        <div class="concept-title">📌 The Simple Definition</div>
+        <div class="concept-body">Trading is the act of <strong>buying and selling financial assets</strong> (stocks, crypto, currencies, commodities) with the goal of making a profit from price movements.<br><br>You buy something at a low price and sell it at a higher price. Or you "short sell" — meaning you profit when prices fall.</div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card"><div class="card-icon">📈</div><div class="card-title">Long Trade (BUY)</div><div class="card-body">You believe price will go UP. You buy now, sell later at a higher price. Profit = difference.</div></div>
+        <div class="card"><div class="card-icon">📉</div><div class="card-title">Short Trade (SELL)</div><div class="card-body">You believe price will go DOWN. You sell now, buy back cheaper later. Profit = difference.</div></div>
+        <div class="card"><div class="card-icon">⏱️</div><div class="card-title">Timeframes</div><div class="card-body">Day trading (hours), Swing trading (days-weeks), Position trading (months-years).</div></div>
+      </div>
+
+      <div class="section-heading">🏛️ Who Moves the Markets?</div>
+      <table class="styled-table">
+        <tr><th>PARTICIPANT</th><th>WHO THEY ARE</th><th>IMPACT ON MARKET</th></tr>
+        <tr><td>🏦 Institutional Traders</td><td>Banks, hedge funds, mutual funds</td><td class="green">Very High — move prices</td></tr>
+        <tr><td>🤖 Algorithmic Traders</td><td>AI bots executing thousands of trades/sec</td><td class="green">Very High — 70% of volume</td></tr>
+        <tr><td>🏢 Market Makers</td><td>Provide liquidity, always buying & selling</td><td class="green">High</td></tr>
+        <tr><td>👤 Retail Traders</td><td>Individual traders like you and me</td><td class="red">Low individually</td></tr>
+      </table>
+
+      <div class="callout warn">
+        <div class="callout-title">💡 KEY INSIGHT</div>
+        As a retail trader, you are trading AGAINST algorithms and institutions with billions in capital. This is why strategy, discipline, and risk management matter more than just "picking the right stock."
+      </div>
+
+      <div class="section-heading">💸 How is Money Made in Trading?</div>
+      <div class="formula">
+Profit = (Exit Price - Entry Price) × Number of Units
+
+Example:
+Buy 1 BTC at ₹60,00,000
+Sell 1 BTC at ₹66,00,000
+Profit = ₹6,00,000 (10% gain) ✅
+
+Short Example:
+Sell 1 BTC at ₹60,00,000
+Buy back at ₹54,00,000
+Profit = ₹6,00,000 (10% gain on falling price) ✅</div>
+
+      <div class="video-section">
+        <div class="video-label">RECOMMENDED VIDEOS — WATCH THESE</div>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/p7HKvqRI_Bo" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">Stock Market for Beginners — How It Works</div><div class="video-channel">Zerodha Varsity</div></div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/oVFM3E9sDhU" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">How to Start Trading — Complete Beginner Guide</div><div class="video-channel">Trading with Vivek</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz">
+        <div class="quiz-title">🧠 QUICK QUIZ — LESSON 1</div>
+        <div class="quiz-q">If you buy 10 shares of a stock at ₹100 and sell at ₹130, what is your profit?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'wrong','l1q1')">₹130</div>
+          <div class="quiz-opt" onclick="answer(this,'correct','l1q1')">₹300</div>
+          <div class="quiz-opt" onclick="answer(this,'wrong','l1q1')">₹30</div>
+          <div class="quiz-opt" onclick="answer(this,'wrong','l1q1')">₹1300</div>
+        </div>
+        <div class="quiz-feedback" id="fb-l1q1"></div>
+      </div>
+      <button class="complete-btn" onclick="completeLesson('l1','l2')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 2: Types of Markets -->
+    <div class="lesson-panel" id="lesson-l2">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#001a0f,#001f1a);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--green)">MODULE 1 · LESSON 2</div>
+          <div class="lesson-title" style="color:var(--green)">TYPES OF MARKETS</div>
+          <div class="lesson-desc">Stocks, Crypto, Forex, Commodities — understand what each market is and which suits you.</div>
+          <div class="lesson-tags">
+            <div class="tag" style="background:rgba(0,230,118,0.15);color:var(--green)">BEGINNER</div>
+            <div class="tag" style="background:rgba(255,255,255,0.05);color:var(--muted)">12 MIN READ</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading">🌍 The 4 Main Markets</div>
+      <div class="card-grid">
+        <div class="card"><div class="card-icon">🏢</div><div class="card-title">Stock Market</div><div class="card-body">Buy ownership in companies. NSE/BSE in India. Markets open 9:15am-3:30pm IST. Best for long-term wealth.</div></div>
+        <div class="card"><div class="card-icon">₿</div><div class="card-title">Crypto Market</div><div class="card-body">Bitcoin, Ethereum, Altcoins. Open 24/7, 365 days. High volatility = high risk + high reward.</div></div>
+        <div class="card"><div class="card-icon">💱</div><div class="card-title">Forex Market</div><div class="card-body">Currency pairs (USD/INR, EUR/USD). World's largest market. $7.5 trillion traded daily. Open 24/5.</div></div>
+        <div class="card"><div class="card-icon">🏅</div><div class="card-title">Commodities</div><div class="card-body">Gold, Silver, Oil, Natural Gas. Safe haven assets. Affected by geopolitical events heavily.</div></div>
+      </div>
+
+      <div class="section-heading">⚖️ Market Comparison</div>
+      <table class="styled-table">
+        <tr><th>MARKET</th><th>VOLATILITY</th><th>HOURS</th><th>BEST FOR</th><th>MIN CAPITAL</th></tr>
+        <tr><td>📈 Stocks (India)</td><td style="color:var(--gold)">Medium</td><td>9:15-3:30 IST</td><td>Long term wealth</td><td>₹500+</td></tr>
+        <tr><td>₿ Crypto</td><td class="red">Very High</td><td>24/7</td><td>High risk traders</td><td>₹100+</td></tr>
+        <tr><td>💱 Forex</td><td style="color:var(--gold)">Medium-High</td><td>24/5</td><td>Technical traders</td><td>₹5,000+</td></tr>
+        <tr><td>🏅 Gold/Commodities</td><td class="green">Low-Medium</td><td>MCX hours</td><td>Hedging/safety</td><td>₹1,000+</td></tr>
+      </table>
+
+      <div class="callout success">
+        <div class="callout-title">✅ RECOMMENDATION FOR BEGINNERS</div>
+        Start with <strong>Indian Stocks (NSE)</strong> or <strong>Crypto (larger coins — BTC, ETH)</strong>. Avoid Forex until you have 6+ months experience. Gold is great for learning as it's less manipulated.
+      </div>
+
+      <div class="video-section">
+        <div class="video-label">RECOMMENDED VIDEOS</div>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/F3QpgXBtDeo" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">Stock Market vs Crypto vs Forex — Which is Best?</div><div class="video-channel">Finance With Sharan</div></div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/Xn7KWR9EOGQ" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">How the Forex Market Works</div><div class="video-channel">Investopedia</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l2','l3')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 3: Candlesticks -->
+    <div class="lesson-panel" id="lesson-l3">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#1a0a00,#2a1500);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--gold2)">MODULE 1 · LESSON 3</div>
+          <div class="lesson-title" style="color:var(--gold2)">READING CANDLESTICKS</div>
+          <div class="lesson-desc">The language of price. Master candlestick charts and you can read any market in the world.</div>
+          <div class="lesson-tags">
+            <div class="tag" style="background:rgba(255,149,0,0.15);color:var(--gold2)">BEGINNER</div>
+            <div class="tag" style="background:rgba(255,255,255,0.05);color:var(--muted)">15 MIN READ</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading">🕯️ Anatomy of a Candlestick</div>
+      <div class="concept">
+        <div class="concept-title">📌 What One Candle Tells You</div>
+        <div class="concept-body">
+          Each candlestick represents a time period (1 min, 5 min, 1 hour, 1 day etc.) and shows 4 key prices:<br><br>
+          🟢 <strong>Green Candle (Bullish)</strong> = Price went UP in that period<br>
+          🔴 <strong>Red Candle (Bearish)</strong> = Price went DOWN in that period<br><br>
+          <strong>Open</strong> = Price at the START of the period<br>
+          <strong>Close</strong> = Price at the END of the period<br>
+          <strong>High</strong> = Highest price reached<br>
+          <strong>Low</strong> = Lowest price reached<br>
+          <strong>Body</strong> = Thick part (Open to Close)<br>
+          <strong>Wick/Shadow</strong> = Thin lines above and below the body
+        </div>
+      </div>
+
+      <div class="section-heading">🔍 Key Candlestick Patterns</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">🔨</div><div class="step-content"><div class="step-title">Hammer — Bullish Reversal</div><div class="step-desc">Small body at top, long lower wick. Means sellers tried to push price down but buyers fought back strongly. Found at bottoms. = BUY signal.</div></div></div>
+        <div class="step"><div class="step-num">⭐</div><div class="step-content"><div class="step-title">Doji — Indecision</div><div class="step-desc">Open and close are almost the same, creating a cross shape. Neither buyers nor sellers won. Market is pausing — watch for breakout direction.</div></div></div>
+        <div class="step"><div class="step-num">🌟</div><div class="step-content"><div class="step-title">Engulfing Pattern — Strong Signal</div><div class="step-desc">A large candle completely "engulfs" the previous candle. Bullish Engulfing (green) = strong buy. Bearish Engulfing (red) = strong sell.</div></div></div>
+        <div class="step"><div class="step-num">🌠</div><div class="step-content"><div class="step-title">Shooting Star — Bearish Reversal</div><div class="step-desc">Small body at bottom, long upper wick. Buyers tried to push price up but sellers dominated. Found at tops. = SELL signal.</div></div></div>
+        <div class="step"><div class="step-num">3️⃣</div><div class="step-content"><div class="step-title">Three White Soldiers / Three Black Crows</div><div class="step-desc">3 consecutive strong green candles = powerful bullish momentum. 3 red candles = powerful bearish. High reliability pattern.</div></div></div>
+      </div>
+
+      <div class="video-section">
+        <div class="video-label">WATCH THESE — VERY IMPORTANT</div>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/C3rSelzxuUk" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">Candlestick Charts Explained for Beginners</div><div class="video-channel">Rayner Teo</div></div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/pChX5Oo-E5E" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">Top 10 Candlestick Patterns Every Trader Must Know</div><div class="video-channel">Trading with Rayner</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l3','l4')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 4: Support & Resistance -->
+    <div class="lesson-panel" id="lesson-l4">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#00101a,#001525);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--blue)">MODULE 2 · LESSON 4</div>
+          <div class="lesson-title" style="color:var(--blue)">SUPPORT & RESISTANCE</div>
+          <div class="lesson-desc">The foundation of technical analysis. Learn where prices bounce, break, and reverse.</div>
+          <div class="lesson-tags">
+            <div class="tag" style="background:rgba(79,195,247,0.15);color:var(--blue)">INTERMEDIATE</div>
+            <div class="tag" style="background:rgba(255,255,255,0.05);color:var(--muted)">15 MIN READ</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading">🏗️ What Are They?</div>
+      <div class="concept blue">
+        <div class="concept-title">📌 Support Level</div>
+        <div class="concept-body"><strong>Support</strong> is a price level where the market has repeatedly bounced UP from. Think of it as a "floor." Buyers step in at this level because they believe the price is cheap. The more times price bounces off a level, the <strong>stronger</strong> that support is.</div>
+      </div>
+      <div class="concept red">
+        <div class="concept-title">📌 Resistance Level</div>
+        <div class="concept-body"><strong>Resistance</strong> is a price level where the market has repeatedly been rejected DOWN from. Think of it as a "ceiling." Sellers dominate at this level. A strong resistance that breaks becomes the new support — this is called <strong>Role Reversal</strong>.</div>
+      </div>
+
+      <div class="section-heading">⚡ How to Trade S&R</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Identify the Level</div><div class="step-desc">Look for areas where price has reversed at least 2-3 times. The more touches, the stronger the level.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Wait for Price to Return</div><div class="step-desc">Don't chase. Wait for price to come back to your identified level. Patience is key.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Look for Confirmation Candle</div><div class="step-desc">Wait for a bullish candle (at support) or bearish candle (at resistance) to confirm the bounce. Never enter blindly.</div></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Enter with Stop Loss</div><div class="step-desc">Place Stop Loss just BELOW support (for buy) or ABOVE resistance (for sell). A few points buffer is smart.</div></div></div>
+      </div>
+
+      <div class="video-section">
+        <div class="video-label">RECOMMENDED VIDEOS</div>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/nq_4-b9HWdE" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">Support and Resistance Trading Strategy</div><div class="video-channel">Rayner Teo</div></div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/bj4OhFxH0No" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">How to Draw Support & Resistance (Correctly)</div><div class="video-channel">Humbled Trader</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l4','l5')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 5: RSI & MACD -->
+    <div class="lesson-panel" id="lesson-l5">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#0f001a,#1a0025);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--purple)">MODULE 2 · LESSON 5</div>
+          <div class="lesson-title" style="color:var(--purple)">RSI & MACD INDICATORS</div>
+          <div class="lesson-desc">The two most powerful and widely used indicators. Learn to read momentum and trend strength.</div>
+          <div class="lesson-tags">
+            <div class="tag" style="background:rgba(179,136,255,0.15);color:var(--purple)">INTERMEDIATE</div>
+            <div class="tag" style="background:rgba(255,255,255,0.05);color:var(--muted)">18 MIN READ</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading">📊 RSI — Relative Strength Index</div>
+      <div class="concept purple">
+        <div class="concept-title">📌 What RSI Tells You</div>
+        <div class="concept-body">
+          RSI measures <strong>how fast and how much</strong> price has moved. It ranges from 0 to 100.<br><br>
+          🔴 <strong>Above 70</strong> = OVERBOUGHT — price may be too high, possible reversal down<br>
+          🟢 <strong>Below 30</strong> = OVERSOLD — price may be too low, possible reversal up<br>
+          ⚪ <strong>50 level</strong> = Neutral momentum<br><br>
+          <strong>Divergence</strong> = When price makes new high but RSI doesn't = hidden weakness = potential reversal signal
+        </div>
+      </div>
+      <div class="formula">RSI = 100 - (100 / (1 + RS))
+RS = Average Gain / Average Loss over 14 periods
+
+Simple Rules:
+• RSI > 70 → Consider SELL or exit longs
+• RSI < 30 → Consider BUY or exit shorts
+• RSI crossing 50 upward → Bullish momentum building
+• RSI crossing 50 downward → Bearish momentum building</div>
+
+      <div class="section-heading">📈 MACD — Moving Average Convergence Divergence</div>
+      <div class="concept">
+        <div class="concept-title">📌 What MACD Tells You</div>
+        <div class="concept-body">
+          MACD shows <strong>trend direction and momentum changes</strong>. It has 3 components:<br><br>
+          📏 <strong>MACD Line</strong> = 12-period EMA minus 26-period EMA<br>
+          📏 <strong>Signal Line</strong> = 9-period EMA of MACD Line<br>
+          📊 <strong>Histogram</strong> = Distance between MACD and Signal<br><br>
+          🟢 <strong>MACD crosses ABOVE Signal</strong> = Bullish crossover = BUY signal<br>
+          🔴 <strong>MACD crosses BELOW Signal</strong> = Bearish crossover = SELL signal<br>
+          📊 <strong>Histogram growing</strong> = Momentum increasing in that direction
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-title">💡 COMBINING RSI + MACD = CONFLUENCE</div>
+        Best signals come when BOTH agree. Example: RSI below 30 (oversold) AND MACD bullish crossover happening at the same time = STRONG buy signal with higher probability.
+      </div>
+
+      <div class="video-section">
+        <div class="video-label">WATCH THESE — CRITICAL LESSONS</div>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/nq_4-b9HWdE" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">RSI Indicator Explained — How to Use It Properly</div><div class="video-channel">Rayner Teo</div></div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/eT_9GmJDfas" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">MACD Indicator — Complete Beginner Tutorial</div><div class="video-channel">Trading 212</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l5','l6')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 6: Chart Patterns -->
+    <div class="lesson-panel" id="lesson-l6">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#001510,#00200a);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--green)">MODULE 2 · LESSON 6</div>
+          <div class="lesson-title" style="color:var(--green)">CHART PATTERNS</div>
+          <div class="lesson-desc">Patterns repeat because human psychology repeats. Learn to spot them before the move happens.</div>
+        </div>
+      </div>
+
+      <div class="section-heading">🔷 Continuation Patterns</div>
+      <div class="card-grid">
+        <div class="card"><div class="card-icon">🔺</div><div class="card-title">Ascending Triangle</div><div class="card-body">Flat top resistance + rising lows. Buyers getting more aggressive. Usually breaks UP. Strong bullish signal.</div></div>
+        <div class="card"><div class="card-icon">🏳️</div><div class="card-title">Bull Flag</div><div class="card-body">Strong upward move (flagpole) followed by slight consolidation downward (flag). Breaks upward. BUY on breakout.</div></div>
+        <div class="card"><div class="card-icon">📐</div><div class="card-title">Symmetrical Triangle</div><div class="card-body">Converging trend lines — lower highs and higher lows. Breakout can go either way. Wait for confirmed break.</div></div>
+      </div>
+
+      <div class="section-heading">🔄 Reversal Patterns</div>
+      <div class="card-grid">
+        <div class="card"><div class="card-icon">🙃</div><div class="card-title">Head & Shoulders</div><div class="card-body">Three peaks — left shoulder, higher head, right shoulder. Classic bearish reversal. SELL when neckline breaks.</div></div>
+        <div class="card"><div class="card-icon">🏔️</div><div class="card-title">Double Top</div><div class="card-body">Price hits same resistance twice and fails. W-shape at top. Strong SELL signal on second rejection and break below support.</div></div>
+        <div class="card"><div class="card-icon">W</div><div class="card-title">Double Bottom</div><div class="card-body">Price hits same support twice and bounces. W-shape at bottom. Strong BUY signal. Entry on break above the "neck".</div></div>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ NEVER TRADE PATTERNS IN ISOLATION</div>
+        Always combine patterns with S&R levels, RSI, and MACD for confirmation. A pattern alone is just a possibility — confluence makes it a high-probability trade.
+      </div>
+
+      <div class="video-section">
+        <div class="video-label">RECOMMENDED VIDEOS</div>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/EQqVzBqTBpE" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">21 Chart Patterns That Every Trader Must Know</div><div class="video-channel">Rayner Teo</div></div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/CinOBi1RJZQ" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">Head and Shoulders Pattern Trading Strategy</div><div class="video-channel">Trading with Vivek</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l6','l7')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 7: Stop Loss & Take Profit -->
+    <div class="lesson-panel" id="lesson-l7">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#1a0000,#2a0000);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--red)">MODULE 3 · LESSON 7</div>
+          <div class="lesson-title" style="color:var(--red)">STOP LOSS & TAKE PROFIT</div>
+          <div class="lesson-desc">The most important lesson. This module alone will save your trading account from blowing up.</div>
+        </div>
+      </div>
+
+      <div class="callout danger">
+        <div class="callout-title">🚨 READ THIS FIRST</div>
+        90% of traders who blow their accounts do so because they didn't use Stop Losses. No matter how confident you are in a trade — ALWAYS set a Stop Loss. The market can always go against you.
+      </div>
+
+      <div class="section-heading">🛑 Stop Loss</div>
+      <div class="concept red">
+        <div class="concept-title">📌 What is a Stop Loss?</div>
+        <div class="concept-body">A <strong>Stop Loss (SL)</strong> is a pre-set price level where your trade automatically closes if the market goes against you. It's your protection against catastrophic loss.<br><br>
+        <strong>Without SL:</strong> 1 bad trade can wipe out 10 good trades<br>
+        <strong>With SL:</strong> Every loss is limited and manageable</div>
+      </div>
+
+      <div class="steps">
+        <div class="step"><div class="step-num">📍</div><div class="step-content"><div class="step-title">Where to Place Stop Loss</div><div class="step-desc">For BUY trades: Place SL just BELOW the support level or the last swing low. For SELL trades: Place SL just ABOVE resistance or last swing high. Give it a small buffer (0.5-1%) to avoid being stopped by noise.</div></div></div>
+        <div class="step"><div class="step-num">%</div><div class="step-content"><div class="step-title">The 1-2% Rule</div><div class="step-desc">Never risk more than 1-2% of your total trading capital on ONE trade. If you have ₹50,000, max loss per trade = ₹500-₹1000. This ensures you survive 50+ consecutive losses without blowing up.</div></div></div>
+      </div>
+
+      <div class="section-heading">🎯 Take Profit</div>
+      <div class="concept green">
+        <div class="concept-title">📌 What is Take Profit?</div>
+        <div class="concept-body">
+          <strong>Take Profit (TP)</strong> is your target price where you lock in profits. Most professional traders use multiple TP levels:<br><br>
+          🎯 <strong>TP1</strong> = First target (1:1.5 Risk:Reward) — take 50% profits here<br>
+          🎯 <strong>TP2</strong> = Second target (1:2 R:R) — take 30% profits here<br>
+          🎯 <strong>TP3</strong> = Third target (1:3 R:R) — let 20% ride for maximum gain
+        </div>
+      </div>
+
+      <div class="formula">Risk:Reward Ratio Example:
+
+Entry: ₹100
+Stop Loss: ₹95 (Risk = ₹5)
+TP1: ₹107.50 (Reward = ₹7.50) → R:R = 1:1.5 ✅
+TP2: ₹110 (Reward = ₹10) → R:R = 1:2 ✅
+TP3: ₹115 (Reward = ₹15) → R:R = 1:3 ✅
+
+Even if you win only 40% of trades with 1:2 R:R:
+10 trades × 40% win = 4 wins × ₹10 = +₹40
+             60% loss = 6 losses × ₹5 = -₹30
+NET PROFIT = +₹10 ← You're PROFITABLE! 🎉</div>
+
+      <div class="video-section">
+        <div class="video-label">MOST IMPORTANT VIDEOS IN THIS COURSE</div>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/jKXeJ3jMLQI" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">Stop Loss Placement — The Complete Guide</div><div class="video-channel">Rayner Teo</div></div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/GUiABjxHDG0" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">Risk Management — How Professional Traders Think</div><div class="video-channel">Trading with Vivek</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l7','l8')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 8: Position Sizing -->
+    <div class="lesson-panel" id="lesson-l8">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#001a10,#002015);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--green)">MODULE 3 · LESSON 8</div>
+          <div class="lesson-title" style="color:var(--green)">POSITION SIZING</div>
+          <div class="lesson-desc">How much to put into each trade. The math that separates professionals from gamblers.</div>
+        </div>
+      </div>
+
+      <div class="section-heading">💰 What is Position Sizing?</div>
+      <div class="concept green">
+        <div class="concept-title">📌 The Core Concept</div>
+        <div class="concept-body">Position sizing answers: <strong>"How many shares/units should I buy?"</strong><br><br>
+        Most beginners randomly decide — "I'll put ₹10,000 into this trade." This is WRONG.<br>
+        Professionals calculate based on their <strong>risk tolerance and stop loss distance.</strong></div>
+      </div>
+
+      <div class="formula">POSITION SIZE FORMULA:
+
+Position Size = (Account Risk ₹) ÷ (Stop Loss Distance ₹)
+
+Example:
+• Account = ₹1,00,000
+• Risk per trade = 1% = ₹1,000
+• Entry price = ₹500
+• Stop Loss = ₹490 (distance = ₹10)
+
+Position Size = ₹1,000 ÷ ₹10 = 100 shares
+
+If SL hits: Loss = 100 × ₹10 = ₹1,000 = exactly 1% ✅
+If TP hits (₹520): Profit = 100 × ₹20 = ₹2,000 = 2% ✅</div>
+
+      <div class="callout success">
+        <div class="callout-title">✅ THE GOLDEN RULE</div>
+        Never risk more than 1-2% per trade. With ₹50,000 capital and 1% risk = ₹500 max loss per trade. You can lose 50 trades IN A ROW and still have ₹25,000 left. This is how pros survive and thrive.
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l8','l9')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 9: Building Strategy -->
+    <div class="lesson-panel" id="lesson-l9">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#0f001a,#150020);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--purple)">MODULE 4 · LESSON 9</div>
+          <div class="lesson-title" style="color:var(--purple)">BUILD YOUR STRATEGY</div>
+          <div class="lesson-desc">Put everything together. Create a systematic, rules-based strategy you can follow consistently.</div>
+        </div>
+      </div>
+
+      <div class="section-heading">🏗️ The Components of a Strategy</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Market & Timeframe</div><div class="step-desc">What market will you trade? (BTC, NIFTY, Gold?) What timeframe? (1H chart for swing, 15m for day trading). Stick to ONE market and ONE timeframe when starting.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Entry Rules (Exact)</div><div class="step-desc">Be specific. "I will buy when: RSI is below 35, price is at key support, and a bullish engulfing candle forms." Vague rules = inconsistent results.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Stop Loss Rules</div><div class="step-desc">Where exactly does your SL go? "SL goes 1% below the support level." Write this down. Never change it mid-trade.</div></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Take Profit Rules</div><div class="step-desc">"TP1 at next resistance (1:1.5 R:R). TP2 at 1:2 R:R. Move SL to breakeven after TP1 hit." Pre-defined, not emotional.</div></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Backtest It First</div><div class="step-desc">Before trading live, go back on TradingView and test your rules on 50-100 historical trades. Calculate: Win rate %, Average R:R, Max drawdown. Only trade it live if numbers are positive.</div></div></div>
+      </div>
+
+      <div class="section-heading">📋 Example Beginner Strategy</div>
+      <div class="concept">
+        <div class="concept-title">🟢 The EMA + RSI Pullback Strategy</div>
+        <div class="concept-body">
+          <strong>Market:</strong> BTC/USD or NIFTY50 · <strong>Timeframe:</strong> 1 Hour chart<br><br>
+          <strong>Setup:</strong><br>
+          ✅ Price is above 50 EMA (uptrend confirmed)<br>
+          ✅ Price pulls back to the 50 EMA line<br>
+          ✅ RSI drops to 40-50 range (not oversold, healthy pullback)<br>
+          ✅ Bullish candle forms at the 50 EMA level<br><br>
+          <strong>Entry:</strong> Buy on close of bullish confirmation candle<br>
+          <strong>Stop Loss:</strong> Below the low of the pullback candle<br>
+          <strong>TP1:</strong> Previous high (1:1.5 R:R minimum)<br>
+          <strong>TP2:</strong> Next major resistance (1:2.5 R:R)<br><br>
+          <strong>Historical Win Rate: ~58-65%</strong> with proper execution
+        </div>
+      </div>
+
+      <div class="video-section">
+        <div class="video-label">RECOMMENDED VIDEOS</div>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/9XAhLMsM5oQ" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">How to Build a Trading Strategy From Scratch</div><div class="video-channel">Rayner Teo</div></div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/1VUmbFIm22U" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">How to Backtest a Trading Strategy on TradingView</div><div class="video-channel">Trading With Stride</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l9','l10')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 10: Psychology -->
+    <div class="lesson-panel" id="lesson-l10">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#1a0800,#200e00);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--gold2)">MODULE 4 · LESSON 10</div>
+          <div class="lesson-title" style="color:var(--gold2)">TRADING PSYCHOLOGY</div>
+          <div class="lesson-desc">The hidden reason most traders fail. Your biggest enemy in trading is in the mirror.</div>
+        </div>
+      </div>
+
+      <div class="section-heading">🧠 The Mental Enemies</div>
+      <div class="card-grid">
+        <div class="card"><div class="card-icon">😱</div><div class="card-title">Fear</div><div class="card-body">Makes you exit winning trades too early, miss valid entry signals, or hesitate on obvious setups. Results in underperformance.</div></div>
+        <div class="card"><div class="card-icon">🤑</div><div class="card-title">Greed</div><div class="card-body">Makes you hold winners too long, over-trade, ignore your TP levels, or add to losing positions hoping they recover.</div></div>
+        <div class="card"><div class="card-icon">😤</div><div class="card-title">Revenge Trading</div><div class="card-body">After a loss, you immediately take another trade to "get it back." This emotional trading leads to even bigger losses.</div></div>
+        <div class="card"><div class="card-icon">🙈</div><div class="card-title">FOMO</div><div class="card-body">Fear Of Missing Out. You see a coin pump 50% and jump in at the top. Chasing price is one of the most common ways to lose money.</div></div>
+      </div>
+
+      <div class="section-heading">✅ How to Control Your Emotions</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">📋</div><div class="step-content"><div class="step-title">Follow Your Rules — No Exceptions</div><div class="step-desc">Write your strategy rules on paper. Before every trade, check if it meets ALL criteria. If not — don't take it. Period.</div></div></div>
+        <div class="step"><div class="step-num">📔</div><div class="step-content"><div class="step-title">Keep a Trade Journal</div><div class="step-desc">Record EVERY trade: entry, exit, reason, emotion felt, result. Review weekly. Patterns in your behavior will become clear quickly.</div></div></div>
+        <div class="step"><div class="step-num">⏸️</div><div class="step-content"><div class="step-title">The 3-Loss Rule</div><div class="step-desc">If you lose 3 trades in a row — STOP trading for the day. Your mind is not in the right place. Come back tomorrow fresh.</div></div></div>
+        <div class="step"><div class="step-num">🎯</div><div class="step-content"><div class="step-title">Focus on Process, Not Money</div><div class="step-desc">Don't think "I need to make ₹10,000 today." Think "I need to execute my strategy perfectly today." Profits follow process.</div></div></div>
+        <div class="step"><div class="step-num">🧘</div><div class="step-content"><div class="step-title">Detach From Individual Trades</div><div class="step-desc">Every single trade is just one data point in hundreds. A loss means nothing. A win means nothing. Only the system over 100+ trades matters.</div></div></div>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-title">💡 THE GOLDEN TRUTH ABOUT TRADING</div>
+        "The market doesn't care about your feelings, your bills, your dreams, or your losses. It will do exactly what it wants to do. The only thing you can control is how you react to it."
+      </div>
+
+      <div class="video-section">
+        <div class="video-label">WATCH THESE — LIFE CHANGING</div>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/GnxrGKpjD0g" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">Trading Psychology — Why You Lose Even With a Good Strategy</div><div class="video-channel">Rayner Teo</div></div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><iframe src="https://www.youtube.com/embed/yZ7bFMHYOiM" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info"><div class="video-title">How to Control Fear & Greed While Trading</div><div class="video-channel">Humbled Trader</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l10','l11')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 11: AI Trading -->
+    <div class="lesson-panel" id="lesson-l11">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#001a14,#002020);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--green)">MODULE 5 · LESSON 11</div>
+          <div class="lesson-title" style="color:var(--green)">USING AI FOR SIGNALS</div>
+          <div class="lesson-desc">How to properly use AI tools like NEXUS AI to enhance your trading — not replace your judgment.</div>
+        </div>
+      </div>
+
+      <div class="section-heading">🤖 What AI Can & Cannot Do</div>
+      <table class="styled-table">
+        <tr><th>AI CAN DO ✅</th><th>AI CANNOT DO ❌</th></tr>
+        <tr><td class="green">Read chart patterns instantly</td><td class="red">Predict black swan events</td></tr>
+        <tr><td class="green">Identify S&R levels</td><td class="red">Know what news breaks tomorrow</td></tr>
+        <tr><td class="green">Spot indicator confluence</td><td class="red">Guarantee any outcome</td></tr>
+        <tr><td class="green">Suggest TP and SL levels</td><td class="red">Replace your risk management</td></tr>
+        <tr><td class="green">Analyze news sentiment</td><td class="red">Make decisions FOR you</td></tr>
+        <tr><td class="green">Backtest ideas quickly</td><td class="red">Control your emotions for you</td></tr>
+      </table>
+
+      <div class="section-heading">⚡ The Perfect AI Trading Workflow</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Check Macro Events First</div><div class="step-desc">Visit TradingEconomics.com. Are there any Fed meetings, CPI releases, earnings reports today? Big events = avoid trading right before them.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Check Company/Asset News</div><div class="step-desc">Use Finviz (stocks), CoinDesk (crypto), Reuters (forex). Know the fundamental backdrop for what you're trading.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Screenshot Your Chart</div><div class="step-desc">On TradingView, set up your indicators (RSI, MACD, S&R levels). Take a clean screenshot showing the full setup.</div></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Feed Chart + News to AI</div><div class="step-desc">Upload the chart to NEXUS AI (or ChatGPT/Claude). Add the latest news headline. Ask: "Given this chart and news, what is your analysis? Entry, SL, TP?"</div></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Cross-Check With Your Own Analysis</div><div class="step-desc">Do YOU agree with what AI says? Does it match your strategy rules? If yes → consider the trade. If your analysis conflicts → SKIP the trade.</div></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-title">Execute With Proper Risk Management</div><div class="step-desc">Calculate position size. Set SL and TP orders immediately. Walk away and let the trade play out. Don't watch every candle.</div></div></div>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-title">✅ THE BEST FREE AI TOOLS FOR TRADERS</div>
+        📊 <strong>NEXUS AI</strong> (your course tool) — Chart analysis with Claude AI<br>
+        🤖 <strong>ChatGPT-4o</strong> — Upload charts, get detailed analysis<br>
+        📰 <strong>Finviz</strong> — Stock screener + news<br>
+        🌍 <strong>TradingEconomics</strong> — Macro calendar + data<br>
+        📈 <strong>TradingView</strong> — Best charting platform with alerts<br>
+        💡 <strong>Zerodha Varsity</strong> — Best free learning resource for Indians
+      </div>
+
+      <button class="complete-btn" onclick="completeLesson('l11','l12')">✅ COMPLETE LESSON & CONTINUE →</button>
+    </div>
+
+    <!-- LESSON 12: Roadmap -->
+    <div class="lesson-panel" id="lesson-l12">
+      <div class="lesson-hero" style="background:linear-gradient(135deg,#1a1400,#2a2000);">
+        <div class="hero-content">
+          <div class="lesson-number" style="color:var(--gold)">MODULE 5 · LESSON 12</div>
+          <div class="lesson-title" style="color:var(--gold)">YOUR TRADING ROADMAP</div>
+          <div class="lesson-desc">A realistic, month-by-month action plan to go from complete beginner to consistent trader.</div>
+        </div>
+      </div>
+
+      <div class="section-heading">🗺️ Month-by-Month Plan</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1-2</div><div class="step-content"><div class="step-title">Months 1-2: Foundation & Paper Trading</div><div class="step-desc">Complete this course. Open a paper trading account (TradingView or Sensibull). Practice with fake money. Study 1 chart per day. Keep a journal. Goal: understand your chosen strategy without losing real money.</div></div></div>
+        <div class="step"><div class="step-num">3-4</div><div class="step-content"><div class="step-title">Months 3-4: Small Real Money</div><div class="step-desc">Start with ₹5,000-₹10,000 real capital. Max 1% risk per trade (₹50-₹100 per trade). The goal is NOT profit — it's to experience emotions with real money and manage them. Log every trade.</div></div></div>
+        <div class="step"><div class="step-num">5-6</div><div class="step-content"><div class="step-title">Months 5-6: Review & Refine</div><div class="step-desc">Review your trade journal. What patterns emerge? Where do you lose most? Refine your strategy based on real data. Begin increasing position sizes slightly if win rate is above 50%.</div></div></div>
+        <div class="step"><div class="step-num">7-12</div><div class="step-content"><div class="step-title">Months 7-12: Scale Slowly</div><div class="step-desc">Gradually increase capital as you prove consistency. Aim for 3-5% monthly return — not 50%. Focus on consistency over big wins. Learn one new concept per month (Fibonacci, Volume, Options basics).</div></div></div>
+        <div class="step"><div class="step-num">2Y</div><div class="step-content"><div class="step-title">Year 2+: Compound & Grow</div><div class="step-desc">With a proven track record, consider increasing capital significantly. At 5% monthly return on ₹5 lakh = ₹25,000/month. This is where real income begins to build — after proving consistency first.</div></div></div>
+      </div>
+
+      <div class="section-heading">📚 Recommended Resources</div>
+      <div class="card-grid">
+        <div class="card"><div class="card-icon">🌐</div><div class="card-title">Zerodha Varsity</div><div class="card-body">Free. Best trading education for Indian markets. Covers everything from basics to options. varsity.zerodha.com</div></div>
+        <div class="card"><div class="card-icon">📺</div><div class="card-title">Rayner Teo (YouTube)</div><div class="card-body">Best free technical analysis YouTube channel. Clear, systematic, no hype. Hundreds of free lessons.</div></div>
+        <div class="card"><div class="card-icon">📖</div><div class="card-title">"Trading in the Zone"</div><div class="card-body">Book by Mark Douglas. The best book ever written on trading psychology. Must-read for every trader.</div></div>
+        <div class="card"><div class="card-icon">📊</div><div class="card-title">TradingView</div><div class="card-body">Best charting platform. Paper trading built in. Practice all your strategies here for free before going live.</div></div>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-title">🏆 FINAL MESSAGE</div>
+        You now have everything you need to start your trading journey the RIGHT way. Most people reading this won't do the work. But if you paper trade consistently, keep a journal, respect risk management, and stay patient — you will be in the top 10% of traders within 2 years. The knowledge is yours now. The discipline is up to you. 🚀
+      </div>
+
+      <button class="complete-btn" id="final-complete-btn" onclick="completeCourse()">🏆 COMPLETE THE COURSE — CLAIM YOUR CERTIFICATE →</button>
+    </div>
+
+  </div><!-- end lessons container -->
+
+</div><!-- end main -->
+
+<script>
+const totalLessons = 12;
+let completedLessons = JSON.parse(localStorage.getItem('ta_completed') || '[]');
+
+function updateProgress() {
+  const pct = Math.round((completedLessons.length / totalLessons) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('xp-count').textContent = completedLessons.length * 100;
+  completedLessons.forEach(id => {
+    const check = document.getElementById('check-' + id);
+    if (check) check.textContent = '✓';
+    const nav = document.getElementById('nav-' + id);
+    if (nav) nav.classList.add('completed');
+  });
+  // Module progress
+  const m = [[1,2,3],[4,5,6],[7,8],[9,10],[11,12]];
+  m.forEach((lessons, i) => {
+    const done = lessons.filter(n => completedLessons.includes('l'+n)).length;
+    const el = document.getElementById('mp'+(i+1));
+    if (el) el.style.width = Math.round((done/lessons.length)*100) + '%';
+  });
+}
+
+function showHome() {
+  document.getElementById('home-screen').style.display = 'block';
+  document.getElementById('lessons-container').style.display = 'none';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-home').classList.add('active');
+  document.getElementById('breadcrumb').innerHTML = '📚 <span>Course Home</span>';
+}
+
+function showLesson(id) {
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('lessons-container').style.display = 'block';
+  document.querySelectorAll('.lesson-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('lesson-' + id);
+  if (panel) { panel.classList.add('active'); panel.scrollIntoView({behavior:'smooth',block:'start'}); }
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const nav = document.getElementById('nav-' + id);
+  if (nav) nav.classList.add('active');
+  const titles = {l1:'What is Trading?',l2:'Types of Markets',l3:'Reading Candlesticks',l4:'Support & Resistance',l5:'RSI & MACD',l6:'Chart Patterns',l7:'Stop Loss & Take Profit',l8:'Position Sizing',l9:'Building Your Strategy',l10:'Trading Psychology',l11:'Using AI for Signals',l12:'Your Trading Roadmap'};
+  document.getElementById('breadcrumb').innerHTML = `📚 Course → <span>${titles[id]||id}</span>`;
+  document.querySelector('.main').scrollTop = 0;
+}
+
+function completeLesson(current, next) {
+  if (!completedLessons.includes(current)) {
+    completedLessons.push(current);
+    localStorage.setItem('ta_completed', JSON.stringify(completedLessons));
+  }
+  updateProgress();
+  if (next) showLesson(next);
+}
+
+function completeCourse() {
+  completeLesson('l12', null);
+  document.getElementById('final-complete-btn').textContent = '🎉 COURSE COMPLETE! YOU ARE READY TO START TRADING!';
+  document.getElementById('final-complete-btn').style.background = 'linear-gradient(135deg, #00e676, #00b0ff)';
+  alert('🏆 Congratulations! You have completed the TRADE ACADEMY course!\n\nYou now have all the knowledge to start your trading journey.\n\nRemember:\n✅ Paper trade first\n✅ Always use Stop Loss\n✅ Risk only 1-2% per trade\n✅ Be patient and consistent\n\nGood luck! 🚀');
+}
+
+function answer(el, result, qid) {
+  const opts = el.parentElement.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.style.pointerEvents = 'none');
+  el.classList.add(result);
+  const fb = document.getElementById('fb-' + qid);
+  if (result === 'correct') {
+    fb.style.display = 'block';
+    fb.style.background = 'rgba(0,230,118,0.1)';
+    fb.style.border = '1px solid rgba(0,230,118,0.3)';
+    fb.style.color = 'var(--green)';
+    fb.textContent = '✅ Correct! Profit = (130-100) × 10 shares = ₹300';
+  } else {
+    fb.style.display = 'block';
+    fb.style.background = 'rgba(255,68,68,0.1)';
+    fb.style.border = '1px solid rgba(255,68,68,0.3)';
+    fb.style.color = 'var(--red)';
+    fb.textContent = '❌ Not quite. Profit = (Exit - Entry) × Shares = (₹130 - ₹100) × 10 = ₹300';
+  }
+}
+
+// Init
+updateProgress();
+showHome();
+</script>
+</body>
+</html>
