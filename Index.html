@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Trading Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:#080b10;
+  color:#f0f0f8;
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  position:relative;
+  overflow:hidden;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,245,160,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,245,160,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+.glow-orb{
+  position:fixed;
+  width:500px;height:500px;
+  border-radius:50%;
+  filter:blur(120px);
+  pointer-events:none;
+  opacity:0.15;
+}
+.orb1{background:#f5c518;top:-200px;left:-200px;}
+.orb2{background:#00f5a0;bottom:-200px;right:-200px;}
+
+.container{
+  position:relative;z-index:1;
+  max-width:480px;width:100%;
+  text-align:center;
+}
+
+.logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:64px;
+  letter-spacing:6px;
+  background:linear-gradient(135deg,#f5c518,#00f5a0);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  line-height:1;
+  margin-bottom:8px;
+  animation:fadeDown 0.6s ease;
+}
+.logo-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:4px;
+  color:#5a7a9a;
+  margin-bottom:48px;
+  animation:fadeDown 0.7s ease;
+}
+
+@keyframes fadeDown{
+  from{opacity:0;transform:translateY(-20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+.cards{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  margin-bottom:32px;
+}
+
+.app-card{
+  background:#111118;
+  border:1px solid #2a2a3a;
+  border-radius:20px;
+  padding:28px 24px;
+  cursor:pointer;
+  text-decoration:none;
+  display:block;
+  transition:all 0.3s;
+  position:relative;
+  overflow:hidden;
+  animation:fadeUp 0.5s ease both;
+}
+.app-card:nth-child(1){animation-delay:0.2s;}
+.app-card:nth-child(2){animation-delay:0.35s;}
+
+.app-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+  transition:height 0.3s;
+}
+.card-gold::before{background:linear-gradient(90deg,#f5c518,#ff9500);}
+.card-green::before{background:linear-gradient(90deg,#00f5a0,#00d9f5);}
+
+.app-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+.card-gold:hover{border-color:rgba(245,197,24,0.4);}
+.card-green:hover{border-color:rgba(0,245,160,0.4);}
+
+.card-top{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:14px;
+}
+.card-emoji{
+  width:52px;height:52px;
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;
+  flex-shrink:0;
+}
+.emoji-gold{background:rgba(245,197,24,0.12);}
+.emoji-green{background:rgba(0,245,160,0.1);}
+
+.card-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;
+  letter-spacing:2px;
+  line-height:1;
+  text-align:left;
+}
+.gold-text{color:#f5c518;}
+.green-text{color:#00f5a0;}
+
+.card-desc{
+  font-size:13px;
+  color:#8888aa;
+  line-height:1.7;
+  text-align:left;
+  margin-bottom:16px;
+}
+
+.card-features{
+  display:flex;flex-wrap:wrap;gap:8px;
+}
+.feature-tag{
+  font-size:10px;
+  font-family:'JetBrains Mono',monospace;
+  padding:4px 10px;
+  border-radius:20px;
+  font-weight:700;
+  letter-spacing:0.5px;
+}
+.tag-gold{background:rgba(245,197,24,0.1);color:#f5c518;border:1px solid rgba(245,197,24,0.2);}
+.tag-green{background:rgba(0,245,160,0.08);color:#00f5a0;border:1px solid rgba(0,245,160,0.2);}
+
+.card-arrow{
+  position:absolute;
+  right:20px;top:50%;
+  transform:translateY(-50%);
+  font-size:20px;
+  opacity:0.3;
+  transition:all 0.2s;
+}
+.app-card:hover .card-arrow{opacity:1;transform:translateY(-50%) translateX(4px);}
+
+.disclaimer{
+  font-size:11px;
+  color:#3a3a5a;
+  line-height:1.6;
+  font-family:'JetBrains Mono',monospace;
+  border-top:1px solid #1e1e2e;
+  padding-top:20px;
+  animation:fadeUp 0.6s 0.5s ease both;
+}
+
+.built-badge{
+  margin-bottom:24px;
+  font-size:11px;
+  color:#5a7a9a;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:1px;
+  animation:fadeUp 0.5s 0.1s ease both;
+}
+.built-badge span{color:#00f5a0;}
+</style>
+</head>
+<body>
+
+<div class="glow-orb orb1"></div>
+<div class="glow-orb orb2"></div>
+
+<div class="container">
+
+  <div class="logo">NEXUS</div>
+  <div class="logo-sub">TRADING INTELLIGENCE PLATFORM</div>
+
+  <div class="built-badge">Built with <span>Claude AI</span> · Free to use · Educational only</div>
+
+  <div class="cards">
+
+    <!-- Trading Course -->
+    <a class="app-card card-gold" href="trading-course.html">
+      <div class="card-top">
+        <div class="card-emoji emoji-gold">🎓</div>
+        <div>
+          <div class="card-name gold-text">TRADE ACADEMY</div>
+          <div style="font-size:11px;color:#5a7a9a;font-family:'JetBrains Mono',monospace;letter-spacing:1px;">ZERO → PROFESSIONAL</div>
+        </div>
+      </div>
+      <div class="card-desc">
+        A complete trading education — 12 lessons across 5 modules covering candlesticks, technical analysis, risk management, strategy building, psychology and AI trading. Includes YouTube videos in every lesson.
+      </div>
+      <div class="card-features">
+        <div class="feature-tag tag-gold">12 LESSONS</div>
+        <div class="feature-tag tag-gold">5 MODULES</div>
+        <div class="feature-tag tag-gold">3+ HOURS</div>
+        <div class="feature-tag tag-gold">FREE</div>
+        <div class="feature-tag tag-gold">📹 VIDEOS</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <!-- NEXUS AI App -->
+    <a class="app-card card-green" href="ai-trading-assistant.html">
+      <div class="card-top">
+        <div class="card-emoji emoji-green">🤖</div>
+        <div>
+          <div class="card-name green-text">NEXUS AI</div>
+          <div style="font-size:11px;color:#5a7a9a;font-family:'JetBrains Mono',monospace;letter-spacing:1px;">TRADING INTELLIGENCE</div>
+        </div>
+      </div>
+      <div class="card-desc">
+        Live TradingView charts for Stocks, Crypto, Forex and Gold. Upload any chart screenshot and get AI-powered analysis with Entry, Stop Loss and Take Profit signals. Includes live news feed and macro calendar.
+      </div>
+      <div class="card-features">
+        <div class="feature-tag tag-green">LIVE CHARTS</div>
+        <div class="feature-tag tag-green">AI SIGNALS</div>
+        <div class="feature-tag tag-green">LIVE NEWS</div>
+        <div class="feature-tag tag-green">CRYPTO</div>
+        <div class="feature-tag tag-green">FOREX</div>
+        <div class="feature-tag tag-green">STOCKS</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ FOR EDUCATIONAL PURPOSES ONLY · NOT FINANCIAL ADVICE<br>
+    Trading involves risk. Never invest money you cannot afford to lose.<br>
+    Always do your own research before making any trade.
+  </div>
+
+</div>
+</body>
+</html>
